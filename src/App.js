@@ -1,25 +1,38 @@
-import logo from './logo.svg';
+import React from 'react';
+import { BrowserRouter as Router, Route, Link, Switch } from 'react-router-dom';
+import { QueryClient, QueryClientProvider } from 'react-query';
+import { ReactQueryDevtools } from 'react-query/devtools';
+import CssBaseline from '@material-ui/core/CssBaseline';
+import Grid from '@material-ui/core/Grid';
+import Login from './components/Login/Login';
+import Register from './components/Register/Register';
+
 import './App.css';
 
-function App() {
-  return (
+import Nav from './components/Nav/Nav';
+const queryClient = new QueryClient();
+
+const App = () => (
+  <>
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <CssBaseline />
+      <Nav />
+      <Switch>
+        <Route exact path="/"></Route>
+
+        <Route path="/login">
+          <Login />
+        </Route>
+
+        <Route path="/Register">
+          <Register />
+        </Route>
+      </Switch>
     </div>
-  );
-}
+    <QueryClientProvider client={queryClient}>
+      <ReactQueryDevtools initialIsOpen={false} />
+    </QueryClientProvider>
+  </>
+);
 
 export default App;
