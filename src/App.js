@@ -14,6 +14,7 @@ import Register from './components/Register/Register';
 import './App.css';
 import Nav from './components/Nav/Nav';
 import UserProvider from './components/UserProvider/UserProvider';
+import Movies from './components/Movies/Movies';
 
 let theme = createMuiTheme({
   palette: {
@@ -37,7 +38,9 @@ const App = () => (
         <CssBaseline />
         <Nav />
         <Switch>
-          <Route exact path="/"></Route>
+          <Route exact path="/">
+            <Movies />
+          </Route>
 
           <Route path="/login">
             <Login />
