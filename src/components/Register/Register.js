@@ -1,10 +1,9 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import { Redirect } from 'react-router-dom';
 import Avatar from '@material-ui/core/Avatar';
 import Button from '@material-ui/core/Button';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import TextField from '@material-ui/core/TextField';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
-import Checkbox from '@material-ui/core/Checkbox';
 import Link from '@material-ui/core/Link';
 import Grid from '@material-ui/core/Grid';
 import Box from '@material-ui/core/Box';
@@ -14,19 +13,6 @@ import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
 import axios from 'axios';
 import { nanoid } from 'nanoid';
-
-function Copyright() {
-  return (
-    <Typography variant="body2" color="textSecondary" align="center">
-      {'Copyright © '}
-      <Link color="inherit" href="https://material-ui.com/">
-        Your Website
-      </Link>{' '}
-      {new Date().getFullYear()}
-      {'.'}
-    </Typography>
-  );
-}
 
 const useStyles = makeStyles(theme => ({
   paper: {
@@ -58,7 +44,14 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-const GenreInputForm = ({ classes, setState }) => {
+const GenreInputForm = ({
+  classes,
+  setState,
+  state,
+  userData,
+  registerQuery,
+  setRegisterQuery,
+}) => {
   const [selectedGenres, setSelectedGenres] = useState({});
   const [disabled, setDisabled] = useState(true);
   const [query, setQuery] = useState({
@@ -163,6 +156,7 @@ const GenreInputForm = ({ classes, setState }) => {
     query.isSuccess,
     query.isError,
     setSelectedGenres,
+    classes.genreButton,
   ]);
 
   return (
@@ -184,6 +178,10 @@ const GenreInputForm = ({ classes, setState }) => {
               disabled={disabled}
               setState={setState}
               data={selectedGenres}
+              state={state}
+              userData={userData}
+              registerQuery={registerQuery}
+              setRegisterQuery={setRegisterQuery}
             />
           </Container>
         </>
@@ -192,30 +190,83 @@ const GenreInputForm = ({ classes, setState }) => {
   );
 };
 
-const GenreToSendButton = ({ disabled, setState, data }) => {
-  const handleClick = () => {
-    console.log(data);
+const GenreToSendButton = ({
+  disabled,
+  state,
+  setState,
+  data,
+  userData,
+  registerQuery,
+  setRegisterQuery,
+}) => {
+  const handleClick = async () => {
+    setRegisterQuery({
+      ...registerQuery,
+      isLoading: true,
+    });
+
+    setState({
+      ...state,
+      current: 'Loading',
+    });
+    const createUserData = {
+      ...userData,
+      genres: Object.keys(data).map(key => key), // Needs to be array
+    };
+
+    try {
+      const res = await axios.post(
+        'https://watch-this-instead.herokuapp.com/api/users/register',
+        createUserData
+      );
+      setRegisterQuery({
+        isError: false,
+        isSuccess: true,
+        isLoading: false,
+        data: res.data,
+      });
+
+      setState({
+        ...state,
+        current: 'Success',
+      });
+    } catch (err) {
+      setRegisterQuery({
+        isLoading: false,
+        isSuccess: false,
+        isError: true,
+        data: err,
+      });
+      setState({
+        ...state,
+        current: 'Error',
+      });
+    }
+  };
+
+  const handleBackClick = () => {
+    setState({ ...state, current: 'email' });
   };
 
   return (
-    <Button disabled={disabled} onClick={handleClick}>
-      Register
-    </Button>
+    <>
+      <Button onClick={handleBackClick}>Go Back</Button>
+      <Button disabled={disabled} onClick={handleClick}>
+        Register
+      </Button>
+    </>
   );
 };
 
-const EmailInputForm = ({ classes }) => {
-  const [userData, setUserData] = useState({
-    email: '',
-    password: '',
-  });
-
-  // Event Handlers
-  const handleChange = e => {
-    setUserData({
-      ...userData,
-      [e.target.name]: e.target.value,
-    });
+const EmailInputForm = ({
+  state,
+  classes,
+  handleChange,
+  userData,
+  setState,
+}) => {
+  const handleClick = () => {
+    setState({ ...state, current: 'genres' });
   };
 
   return (
@@ -257,18 +308,6 @@ const EmailInputForm = ({ classes }) => {
                 autoComplete="off"
               />
             </Grid>
-            {/* <Grid item xs={12}>
-              <TextField
-                variant="outlined"
-                required
-                fullWidth
-                name="password"
-                label="Password"
-                type=""
-                id="password"
-                autoComplete="current-password"
-              />
-            </Grid> */}
           </Grid>
           <Button
             type="submit"
@@ -276,8 +315,9 @@ const EmailInputForm = ({ classes }) => {
             variant="contained"
             color="primary"
             className={classes.submit}
+            onClick={handleClick}
           >
-            Sign Up
+            Continue
           </Button>
           <Grid container justify="flex-end">
             <Grid item>
@@ -288,9 +328,7 @@ const EmailInputForm = ({ classes }) => {
           </Grid>
         </form>
       </div>
-      <Box mt={5}>
-        <Copyright />
-      </Box>
+      <Box mt={5}></Box>
     </Container>
   );
 };
@@ -299,14 +337,54 @@ export default function Register() {
   const classes = useStyles();
   const [state, setState] = useState({
     current: 'email',
-    states: ['email', 'genres', 'submitted'],
   });
 
+  const [userData, setUserData] = useState({
+    email: '',
+    password: '',
+  });
+
+  const [query, setQuery] = useState({
+    isLoading: false,
+    isError: false,
+    isSuccess: false,
+    data: [],
+  });
+
+  // Event Handlers
+  const handleChange = e => {
+    setUserData({
+      ...userData,
+      [e.target.name]: e.target.value,
+    });
+  };
+
   if (state.current === 'email') {
-    return <EmailInputForm classes={classes} setState={setState} />;
+    return (
+      <EmailInputForm
+        classes={classes}
+        setState={setState}
+        userData={userData}
+        handleChange={handleChange}
+        state={state}
+      />
+    );
   } else if (state.current === 'genres') {
-    return <GenreInputForm classes={classes} setState={setState} />;
+    return (
+      <GenreInputForm
+        classes={classes}
+        setState={setState}
+        state={state}
+        userData={userData}
+        registerQuery={query}
+        setRegisterQuery={setQuery}
+      />
+    );
+  } else if (state.current === 'Loading') {
+    return <div>Loading data...</div>;
+  } else if (state.current === 'Success') {
+    return <Redirect to="/login" />;
   } else {
-    // Success or Failure
+    return <div>Error</div>;
   }
 }

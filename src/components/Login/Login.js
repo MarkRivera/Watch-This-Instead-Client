@@ -1,30 +1,18 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import Avatar from '@material-ui/core/Avatar';
 import Button from '@material-ui/core/Button';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import TextField from '@material-ui/core/TextField';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
-import Checkbox from '@material-ui/core/Checkbox';
 import Link from '@material-ui/core/Link';
 import Grid from '@material-ui/core/Grid';
-import Box from '@material-ui/core/Box';
 import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
 import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
-
-function Copyright() {
-  return (
-    <Typography variant="body2" color="textSecondary" align="center">
-      {'Copyright © '}
-      <Link color="inherit" href="https://material-ui.com/">
-        Your Website
-      </Link>{' '}
-      {new Date().getFullYear()}
-      {'.'}
-    </Typography>
-  );
-}
+import CircularProgress from '@material-ui/core/CircularProgress';
+import { Redirect } from 'react-router';
+import { validateToken } from '../../util/auth';
 
 const useStyles = makeStyles(theme => ({
   paper: {
@@ -44,10 +32,81 @@ const useStyles = makeStyles(theme => ({
   submit: {
     margin: theme.spacing(3, 0, 2),
   },
+  circular: {
+    display: 'flex',
+    '& > * + *': {
+      marginLeft: theme.spacing(2),
+    },
+  },
 }));
 
 export default function Login() {
   const classes = useStyles();
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  const [userData, setUserData] = useState({
+    email: '',
+    password: '',
+  });
+
+  const [query, setQuery] = useState({
+    isLoading: false,
+    isSuccess: false,
+    isError: false,
+    data: [],
+  });
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    const validation = token && validateToken(token);
+
+    console.log(validation);
+
+    validation ? setIsLoggedIn(true) : setIsLoggedIn(false);
+  }, [query.isSuccess]);
+
+  // Event Handlers
+  const handleClick = async () => {
+    setQuery({
+      ...query,
+      isLoading: true,
+    });
+
+    try {
+      const request = await axios.post(
+        'https://watch-this-instead.herokuapp.com/api/users/login',
+        userData
+      );
+
+      localStorage.setItem('token', request.data.token);
+
+      setQuery({
+        isLoading: false,
+        isSuccess: true,
+        isError: false,
+        data: request.data,
+      });
+
+      setUserData({
+        email: '',
+        password: '',
+      });
+    } catch (error) {
+      setQuery({
+        isLoading: false,
+        isSuccess: false,
+        isError: true,
+        data: error,
+      });
+    }
+  };
+
+  const handleChange = e => {
+    setUserData({
+      ...userData,
+      [e.target.name]: e.target.value,
+    });
+  };
 
   return (
     <Container component="main" maxWidth="xs">
@@ -69,7 +128,9 @@ export default function Login() {
                 id="email"
                 label="Email Address"
                 name="email"
-                autoComplete="email"
+                value={userData.email}
+                autoComplete="off"
+                onChange={handleChange}
               />
             </Grid>
             <Grid item xs={12}>
@@ -81,31 +142,39 @@ export default function Login() {
                 label="Password"
                 type="password"
                 id="password"
-                autoComplete="current-password"
+                value={userData.password}
+                autoComplete="off"
+                onChange={handleChange}
               />
             </Grid>
           </Grid>
           <Button
-            type="submit"
+            type="button"
             fullWidth
             variant="contained"
             color="primary"
             className={classes.submit}
+            onClick={handleClick}
           >
-            Sign Up
+            {query.isLoading ? (
+              <div className={classes.circular}>
+                <CircularProgress color="inherit" size={24} />{' '}
+              </div>
+            ) : isLoggedIn ? (
+              <Redirect to="/" />
+            ) : (
+              'Log In'
+            )}
           </Button>
           <Grid container justify="flex-end">
             <Grid item>
-              <Link href="#" variant="body2">
-                Already have an account? Sign in
+              <Link href="/register" variant="body2">
+                Don't have an account? Sign up here!
               </Link>
             </Grid>
           </Grid>
         </form>
       </div>
-      <Box mt={5}>
-        <Copyright />
-      </Box>
     </Container>
   );
 }

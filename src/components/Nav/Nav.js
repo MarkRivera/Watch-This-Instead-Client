@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
-import axios from 'axios';
+import React, { useState, useEffect } from 'react';
 import { Grid, IconButton, Button, Drawer } from '@material-ui/core';
-import { makeStyles, useTheme } from '@material-ui/core/styles';
+import { makeStyles } from '@material-ui/core/styles';
 import MenuIcon from '@material-ui/icons/Menu';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
+import validateToken from '../../util/auth';
 
 // CSS
 import './Nav.css';
@@ -16,12 +16,11 @@ const drawerWidth = 500;
 
 const useStyles = makeStyles(theme => ({
   root: {
-    background: 'linear-gradient(45deg, #FE6B8B 30%, #FF8E53 90%)',
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
     padding: '0 30px',
-    boxShadow: '0 3px 5px 2px rgba(255, 105, 135, .3)',
+    boxShadow: '0 3px 5px 2px rgba(13,71,161, .3)',
     color: 'white',
     height: 48,
   },
@@ -60,24 +59,12 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-const validateToken = async token => {
-  const axiosAuth = axios.create({
-    headers: {
-      authorization: token,
-    },
-  });
-  return await axiosAuth.post(
-    'https://watch-this-instead.herokuapp.com/api/users/verify'
-  );
-};
-
 const Nav = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(
     localStorage.getItem('token') ? true : false
   );
   const [open, setOpen] = useState(false);
 
-  const theme = useTheme();
   const classes = useStyles();
 
   // Event Handlers
