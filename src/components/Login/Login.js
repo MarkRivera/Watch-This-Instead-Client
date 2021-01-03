@@ -13,7 +13,6 @@ import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import { Redirect } from 'react-router';
-import { validateToken } from '../../util/auth';
 
 const useStyles = makeStyles(theme => ({
   paper: {

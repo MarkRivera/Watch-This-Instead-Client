@@ -1,9 +1,13 @@
 import React from 'react';
-import { BrowserRouter as Router, Route, Link, Switch } from 'react-router-dom';
+import { BrowserRouter as Route, Switch } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { ReactQueryDevtools } from 'react-query/devtools';
 import CssBaseline from '@material-ui/core/CssBaseline';
-import { createMuiTheme, ThemeProvider } from '@material-ui/core/styles';
+import {
+  createMuiTheme,
+  ThemeProvider,
+  responsiveFontSizes,
+} from '@material-ui/core/styles';
 import Login from './components/Login/Login';
 import Register from './components/Register/Register';
 
@@ -11,7 +15,7 @@ import './App.css';
 import Nav from './components/Nav/Nav';
 import UserProvider from './components/UserProvider/UserProvider';
 
-const theme = createMuiTheme({
+let theme = createMuiTheme({
   palette: {
     primary: {
       main: '#0d47a1',
@@ -21,6 +25,8 @@ const theme = createMuiTheme({
     },
   },
 });
+
+theme = responsiveFontSizes(theme);
 
 const queryClient = new QueryClient();
 

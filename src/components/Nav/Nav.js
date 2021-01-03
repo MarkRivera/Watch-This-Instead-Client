@@ -3,17 +3,24 @@ import UserContext from '../../UserContext';
 import { useHistory } from 'react-router-dom';
 
 // Material UI
-import { Grid, IconButton, Button, Drawer } from '@material-ui/core';
+import {
+  Grid,
+  IconButton,
+  Button,
+  Drawer,
+  Typography,
+} from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import MenuIcon from '@material-ui/icons/Menu';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
+import Link from '@material-ui/core/Link';
 
 // CSS
 import './Nav.css';
 
 // Navigation
 import AppBar from '@material-ui/core/AppBar';
-import { Link } from 'react-router-dom';
+import { Link as RouterLink } from 'react-router-dom';
 
 const drawerWidth = 400;
 
@@ -48,8 +55,7 @@ const useStyles = makeStyles(theme => ({
     padding: 12,
   },
   logo: {
-    height: 48,
-    padding: 12,
+    color: '#fff',
   },
   drawer: {
     [theme.breakpoints.up('sm')]: {
@@ -86,16 +92,18 @@ const Nav = () => {
   return (
     <AppBar position="static">
       <Grid container className={classes.root}>
-        <Link to="/">
-          <div className={classes.logo}>Logo</div>
+        <Link component={RouterLink} to="/">
+          <Typography variant="h6" className={classes.logo}>
+            WT
+          </Typography>
         </Link>
         <Grid item className={classes.rightSideNav} xs={2}>
           {!user.isLoggedIn ? (
             <Grid item className={classes.newUser}>
-              <Link to="/login">
+              <Link component={RouterLink} to="/login">
                 <Button className={classes.rightButton}>Login</Button>
               </Link>
-              <Link to="/register">
+              <Link component={RouterLink} to="/register">
                 <Button className={classes.rightButton}>Register</Button>
               </Link>
             </Grid>
@@ -128,7 +136,9 @@ const Nav = () => {
           </IconButton>
         </div>
         <Button>
-          <Link to="/profile">Profile</Link>
+          <Link component={RouterLink} to="/profile">
+            Profile
+          </Link>
         </Button>
         <Button onClick={handleLogout}>Log Out</Button>
       </Drawer>
