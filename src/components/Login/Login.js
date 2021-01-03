@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
+import UserContext from '../../UserContext';
 import axios from 'axios';
 import Avatar from '@material-ui/core/Avatar';
 import Button from '@material-ui/core/Button';
@@ -56,14 +57,11 @@ export default function Login() {
     data: [],
   });
 
+  const { user, login } = useContext(UserContext);
+
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    const validation = token && validateToken(token);
-
-    console.log(validation);
-
-    validation ? setIsLoggedIn(true) : setIsLoggedIn(false);
-  }, [query.isSuccess]);
+    user.isLoggedIn ? setIsLoggedIn(true) : setIsLoggedIn(false);
+  }, [user.isLoggedIn]);
 
   // Event Handlers
   const handleClick = async () => {
@@ -78,19 +76,13 @@ export default function Login() {
         userData
       );
 
-      localStorage.setItem('token', request.data.token);
-
       setQuery({
         isLoading: false,
         isSuccess: true,
         isError: false,
         data: request.data,
       });
-
-      setUserData({
-        email: '',
-        password: '',
-      });
+      login(request.data, request.data.token);
     } catch (error) {
       setQuery({
         isLoading: false,

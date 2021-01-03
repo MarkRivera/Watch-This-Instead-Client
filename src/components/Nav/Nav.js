@@ -1,9 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useContext } from 'react';
+import UserContext from '../../UserContext';
+import { useHistory } from 'react-router-dom';
+
+// Material UI
 import { Grid, IconButton, Button, Drawer } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import MenuIcon from '@material-ui/icons/Menu';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
-import validateToken from '../../util/auth';
 
 // CSS
 import './Nav.css';
@@ -12,7 +15,7 @@ import './Nav.css';
 import AppBar from '@material-ui/core/AppBar';
 import { Link } from 'react-router-dom';
 
-const drawerWidth = 500;
+const drawerWidth = 400;
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -60,12 +63,10 @@ const useStyles = makeStyles(theme => ({
 }));
 
 const Nav = () => {
-  const [isLoggedIn, setIsLoggedIn] = useState(
-    localStorage.getItem('token') ? true : false
-  );
   const [open, setOpen] = useState(false);
-
   const classes = useStyles();
+  const { user, logout } = useContext(UserContext);
+  const history = useHistory();
 
   // Event Handlers
   const handleDrawerOpen = () => {
@@ -76,6 +77,12 @@ const Nav = () => {
     setOpen(false);
   };
 
+  const handleLogout = () => {
+    handleDrawerClose();
+    logout();
+    history.push('/login');
+  };
+
   return (
     <AppBar position="static">
       <Grid container className={classes.root}>
@@ -83,7 +90,7 @@ const Nav = () => {
           <div className={classes.logo}>Logo</div>
         </Link>
         <Grid item className={classes.rightSideNav} xs={2}>
-          {!isLoggedIn ? (
+          {!user.isLoggedIn ? (
             <Grid item className={classes.newUser}>
               <Link to="/login">
                 <Button className={classes.rightButton}>Login</Button>
@@ -120,8 +127,10 @@ const Nav = () => {
             <ChevronLeftIcon />
           </IconButton>
         </div>
-        <Button>Profile</Button>
-        <Button>Log Out</Button>
+        <Button>
+          <Link to="/profile">Profile</Link>
+        </Button>
+        <Button onClick={handleLogout}>Log Out</Button>
       </Drawer>
     </AppBar>
   );

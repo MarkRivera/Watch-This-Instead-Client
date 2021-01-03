@@ -9,6 +9,7 @@ import Register from './components/Register/Register';
 
 import './App.css';
 import Nav from './components/Nav/Nav';
+import UserProvider from './components/UserProvider/UserProvider';
 
 const theme = createMuiTheme({
   palette: {
@@ -25,21 +26,23 @@ const queryClient = new QueryClient();
 
 const App = () => (
   <ThemeProvider theme={theme}>
-    <div className="App">
-      <CssBaseline />
-      <Nav />
-      <Switch>
-        <Route exact path="/"></Route>
+    <UserProvider>
+      <div className="App">
+        <CssBaseline />
+        <Nav />
+        <Switch>
+          <Route exact path="/"></Route>
 
-        <Route path="/login">
-          <Login />
-        </Route>
+          <Route path="/login">
+            <Login />
+          </Route>
 
-        <Route path="/Register">
-          <Register />
-        </Route>
-      </Switch>
-    </div>
+          <Route path="/Register">
+            <Register />
+          </Route>
+        </Switch>
+      </div>
+    </UserProvider>
     <QueryClientProvider client={queryClient}>
       <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>
