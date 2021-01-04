@@ -1,8 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
 import GenreToSendButton from './GenreToSendButton';
+import GenreButton from './GenreButton';
 
 // Material UI
-import { Grid, Button, Container } from '@material-ui/core';
+import { Grid, Container, Typography } from '@material-ui/core';
 
 // 3rd Party
 import axios from 'axios';
@@ -86,20 +87,13 @@ const GenreInputForm = ({
         }
         const containerItems = items.map(item => {
           return (
-            <Grid
-              item
-              xs={12}
-              sm={3}
-              key={nanoid()}
-              onClick={() => handleClick(item)}
-            >
-              <Button
-                color="primary"
-                variant="contained"
-                className={classes.genreButton}
-              >
-                {item.genre}
-              </Button>
+            <Grid item xs={12} sm={3} key={nanoid()}>
+              <GenreButton
+                classes={classes}
+                item={item}
+                handleClick={handleClick}
+                updated={updated}
+              />
             </Grid>
           );
         });
@@ -137,6 +131,9 @@ const GenreInputForm = ({
             maxWidth="xl"
             className={classes.genreContainer}
           >
+            <Typography variant="h2" className={classes.header}>
+              Choose 3 Genres:
+            </Typography>
             {elements.length > 0 && elements}
             <GenreToSendButton
               disabled={disabled}
