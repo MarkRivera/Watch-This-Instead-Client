@@ -1,7 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Route, Switch } from 'react-router-dom';
-import { QueryClient, QueryClientProvider } from 'react-query';
-import { ReactQueryDevtools } from 'react-query/devtools';
+import { Route, Switch } from 'react-router-dom';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import {
   createMuiTheme,
@@ -29,11 +27,9 @@ let theme = createMuiTheme({
 
 theme = responsiveFontSizes(theme);
 
-const queryClient = new QueryClient();
-
 const App = () => (
-  <ThemeProvider theme={theme}>
-    <UserProvider>
+  <UserProvider>
+    <ThemeProvider theme={theme}>
       <div className="App">
         <CssBaseline />
         <Nav />
@@ -46,16 +42,13 @@ const App = () => (
             <Login />
           </Route>
 
-          <Route path="/Register">
+          <Route path="/register">
             <Register />
           </Route>
         </Switch>
       </div>
-    </UserProvider>
-    <QueryClientProvider client={queryClient}>
-      <ReactQueryDevtools initialIsOpen={false} />
-    </QueryClientProvider>
-  </ThemeProvider>
+    </ThemeProvider>
+  </UserProvider>
 );
 
 export default App;

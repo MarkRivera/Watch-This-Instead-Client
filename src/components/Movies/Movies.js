@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import UserContext from '../../UserContext';
 import { nanoid } from 'nanoid';
 
@@ -6,6 +6,14 @@ import { nanoid } from 'nanoid';
 import Carousel from 'react-material-ui-carousel';
 import { makeStyles } from '@material-ui/core/styles';
 import { Typography } from '@material-ui/core';
+import { ButtonGroup, Button } from '@material-ui/core';
+import CircularProgress from '@material-ui/core/CircularProgress';
+
+// Material Icons
+import FavoriteIcon from '@material-ui/icons/Favorite';
+import WatchLaterIcon from '@material-ui/icons/WatchLater';
+import BookmarkIcon from '@material-ui/icons/Bookmark';
+import axios from 'axios';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -16,6 +24,11 @@ const useStyles = makeStyles(theme => ({
     display: 'flex',
     justifyContent: 'center',
     flexWrap: 'wrap',
+    color: '#fff',
+  },
+  spinner: {
+    padding: 70,
+    color: '#fff',
   },
   carousel: {
     width: '100%',
@@ -47,65 +60,141 @@ const useStyles = makeStyles(theme => ({
   },
   detailsContainer: {
     width: 540,
+    paddingLeft: 40,
+    paddingTop: 80,
+  },
+  titleContainer: {
+    display: 'flex',
+    alignItems: 'center',
+  },
+  movieTitle: {
+    paddingRight: 10,
+    fontWeight: 'bold',
+  },
+  movieYear: {
+    color: '#cdd4da',
+  },
+  descriptionContainer: {
+    paddingTop: 40,
   },
 }));
 
 const Movies = () => {
   const classes = useStyles();
   const { user } = useContext(UserContext);
-  const [movies, setMovies] = useState([
-    {
-      title: 'Movie 1',
-      description: 'You remember this right?',
-      year: 1991,
-      id: 1,
-    },
-    { title: 'Movie 2', description: 'Hello, World', year: 1952, id: 2 },
-    { title: 'Movie 3', description: 'Woop', year: 2001, id: 3 },
-  ]);
+  const [movies, setMovies] = useState([]);
+
+  const [query, setQuery] = useState({
+    isLoading: false,
+    isSuccess: false,
+    isError: false,
+  });
+
+  useEffect(() => {
+    setQuery({
+      isLoading: true,
+      isSuccess: false,
+      isError: false,
+    });
+    // if user is not logged in fetch movie data without custom genres:
+    // else if user is logged in, fetch movie data along with custom genres:
+    const fetchMovieData = async () => {
+      const axiosAuth = axios.create({
+        headers: {
+          authorization: user.token,
+        },
+      });
+
+      try {
+        const movies = await axiosAuth.get(
+          'https://watch-this-instead.herokuapp.com/api/movies'
+        );
+        setQuery({
+          isLoading: false,
+          isSuccess: true,
+          isError: false,
+        });
+
+        setMovies(movies.data);
+      } catch (error) {
+        setQuery({
+          isLoading: false,
+          isSuccess: false,
+          isError: true,
+        });
+
+        console.error(error);
+      }
+    };
+
+    fetchMovieData();
+  }, [user]);
 
   return (
     <main className={classes.container}>
-      <Carousel
-        indicators={false}
-        autoPlay={false}
-        animation="slide"
-        className={classes.carousel}
-      >
-        {movies.map(movie => (
-          <section key={nanoid()} className={classes.movieContainer}>
-            <section className={classes.visualsContainer}>
-              <img
-                src="https://via.placeholder.com/300x450.png"
-                alt={`Poster of the ${movie.title} movie`}
-                className={classes.poster}
-              />
-              <Typography variant="h6" className={classes.stream}>
-                Streaming on Netflix!
-              </Typography>
+      {query.isLoading ? (
+        <CircularProgress className={classes.spinner} size={500} />
+      ) : (
+        <Carousel
+          indicators={false}
+          autoPlay={false}
+          animation="slide"
+          className={classes.carousel}
+        >
+          {movies.map(movie => (
+            <section key={nanoid()} className={classes.movieContainer}>
+              <section className={classes.visualsContainer}>
+                <img
+                  src="https://via.placeholder.com/300x450.png"
+                  alt={`Poster of the ${movie.title} movie`}
+                  className={classes.poster}
+                />
+                <Typography variant="h6" className={classes.stream}>
+                  Streaming on Netflix!
+                </Typography>
+              </section>
+              <section className={classes.detailsContainer}>
+                <section className={classes.titleContainer}>
+                  <Typography variant="h5" className={classes.movieTitle}>
+                    {`${movie.title}`}
+                  </Typography>
+                  <Typography variant="subtitle2" className={classes.movieYear}>
+                    ({movie.year})
+                  </Typography>
+                </section>
+
+                <ButtonGroup
+                  variant="contained"
+                  color="primary"
+                  aria-label="outlined primary button group"
+                  className={classes.buttonContainer}
+                >
+                  <Button className={classes.favButton}>
+                    <FavoriteIcon />
+                  </Button>
+
+                  <Button className={classes.watchedButton}>
+                    <WatchLaterIcon />
+                  </Button>
+                  <Button className={classes.watchListButton}>
+                    <BookmarkIcon />
+                  </Button>
+                </ButtonGroup>
+
+                <section className={classes.descriptionContainer}>
+                  <Typography variant="h6" className={classes.overview}>
+                    Overview
+                  </Typography>
+                  <Typography variant="body2" className={classes.description}>
+                    {movie.description ||
+                      "There's no description of this movie available"}
+                  </Typography>
+                </section>
+              </section>
             </section>
-            <section className={classes.detailsContainer}>
-              <section className={classes.titleContainer}>
-                <h1 className={classes.movieTitle}>{movie.title}</h1>
-                <h1 className={classes.movieYear}>{movie.year}</h1>
-              </section>
-
-              <section className={classes.buttonContainer}>
-                <button className={classes.favButton}>Fav</button>
-                <button className={classes.watchedButton}>Watched</button>
-                <button className={classes.watchListButton}>Watch List</button>
-              </section>
-
-              <section className={classes.caption}>Caption Text</section>
-
-              <section className={classes.descriptionContainer}>
-                <h2 className={classes.overview}>Overview</h2>
-                <p className={classes.description}>{movie.description}</p>
-              </section>
-            </section>
-          </section>
-        ))}
-      </Carousel>
+          ))}
+        </Carousel>
+      )}
     </main>
   );
 };
