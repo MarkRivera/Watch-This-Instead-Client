@@ -18,7 +18,7 @@ import axios from 'axios';
 const useStyles = makeStyles(theme => ({
   container: {
     width: '100%',
-    height: 570,
+    minHeight: 570,
     backgroundImage:
       'linear-gradient(to right, rgba(14.12%, 26.27%, 37.65%, 1.00) 150px, rgba(14.12%, 26.27%, 37.65%, 0.84) 100%)',
     display: 'flex',
@@ -37,7 +37,7 @@ const useStyles = makeStyles(theme => ({
     display: 'flex',
     justifyContent: 'center',
     width: '100%',
-    height: '570px',
+    minHeight: '570px',
     padding: '30px 40px',
   },
   visualsContainer: {
@@ -127,8 +127,14 @@ const Movies = () => {
       }
     };
 
+    user.isLoggedIn
+      ? localStorage.setItem('isLoggedIn', `${user.isLoggedIn}`)
+      : localStorage.removeItem('isLoggedIn');
+
     fetchMovieData();
   }, [user]);
+
+  // Fetch Movie Posters and add them to Movie Objects in State
 
   return (
     <main className={classes.container}>
@@ -145,7 +151,11 @@ const Movies = () => {
             <section key={nanoid()} className={classes.movieContainer}>
               <section className={classes.visualsContainer}>
                 <img
-                  src="https://via.placeholder.com/300x450.png"
+                  src={
+                    movie.posterUrl
+                      ? movie.posterUrl
+                      : 'https://via.placeholder.com/300x450.png'
+                  }
                   alt={`Poster of the ${movie.title} movie`}
                   className={classes.poster}
                 />
@@ -163,23 +173,27 @@ const Movies = () => {
                   </Typography>
                 </section>
 
-                <ButtonGroup
-                  variant="contained"
-                  color="primary"
-                  aria-label="outlined primary button group"
-                  className={classes.buttonContainer}
-                >
-                  <Button className={classes.favButton}>
-                    <FavoriteIcon />
-                  </Button>
+                {/* Check to see if user logged in, if so, display user buttons */}
 
-                  <Button className={classes.watchedButton}>
-                    <WatchLaterIcon />
-                  </Button>
-                  <Button className={classes.watchListButton}>
-                    <BookmarkIcon />
-                  </Button>
-                </ButtonGroup>
+                {localStorage.getItem('isLoggedIn') && (
+                  <ButtonGroup
+                    variant="contained"
+                    color="primary"
+                    aria-label="outlined primary button group"
+                    className={classes.buttonContainer}
+                  >
+                    <Button className={classes.favButton}>
+                      <FavoriteIcon />
+                    </Button>
+
+                    <Button className={classes.watchedButton}>
+                      <WatchLaterIcon />
+                    </Button>
+                    <Button className={classes.watchListButton}>
+                      <BookmarkIcon />
+                    </Button>
+                  </ButtonGroup>
+                )}
 
                 <section className={classes.descriptionContainer}>
                   <Typography variant="h6" className={classes.overview}>
