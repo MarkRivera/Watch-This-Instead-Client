@@ -1,5 +1,4 @@
-import React, { useState, useContext, useEffect } from 'react';
-import UserContext from '../../UserContext';
+import React, { useEffect } from 'react';
 import { nanoid } from 'nanoid';
 
 // Material UI
@@ -13,7 +12,10 @@ import CircularProgress from '@material-ui/core/CircularProgress';
 import FavoriteIcon from '@material-ui/icons/Favorite';
 import WatchLaterIcon from '@material-ui/icons/WatchLater';
 import BookmarkIcon from '@material-ui/icons/Bookmark';
-import axios from 'axios';
+
+// Redux
+import { connect } from 'react-redux';
+import { addUserEmail, fetchUserMovies } from '../../state/actions/actions';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -79,66 +81,24 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-const Movies = () => {
+const Movies = ({ movies, genres, user, fetchUserMovies }) => {
   const classes = useStyles();
-  const { user } = useContext(UserContext);
-  const [movies, setMovies] = useState([]);
-
-  const [query, setQuery] = useState({
-    isLoading: false,
-    isSuccess: false,
-    isError: false,
-  });
 
   useEffect(() => {
-    setQuery({
-      isLoading: true,
-      isSuccess: false,
-      isError: false,
-    });
-    // if user is not logged in fetch movie data without custom genres:
-    // else if user is logged in, fetch movie data along with custom genres:
-    const fetchMovieData = async () => {
-      const axiosAuth = axios.create({
-        headers: {
-          authorization: user.token,
-        },
-      });
+    fetchUserMovies(user.token);
+  }, [user, fetchUserMovies]);
 
-      try {
-        const movies = await axiosAuth.get(
-          'https://watch-this-instead.herokuapp.com/api/movies'
-        );
-        setQuery({
-          isLoading: false,
-          isSuccess: true,
-          isError: false,
-        });
-
-        setMovies(movies.data);
-      } catch (error) {
-        setQuery({
-          isLoading: false,
-          isSuccess: false,
-          isError: true,
-        });
-
-        console.error(error);
-      }
-    };
-
-    user.isLoggedIn
-      ? localStorage.setItem('isLoggedIn', `${user.isLoggedIn}`)
-      : localStorage.removeItem('isLoggedIn');
-
-    fetchMovieData();
-  }, [user]);
+  // useEffect(() => {
+  //   user.isLoggedIn
+  //     ? localStorage.setItem('isLoggedIn', `${user.isLoggedIn}`)
+  //     : localStorage.removeItem('isLoggedIn');
+  // }, [user.isLoggedIn]);
 
   // Fetch Movie Posters and add them to Movie Objects in State
 
   return (
     <main className={classes.container}>
-      {query.isLoading ? (
+      {movies.isLoading ? (
         <CircularProgress className={classes.spinner} size={500} />
       ) : (
         <Carousel
@@ -147,7 +107,7 @@ const Movies = () => {
           animation="slide"
           className={classes.carousel}
         >
-          {movies.map(movie => (
+          {movies.data.map(movie => (
             <section key={nanoid()} className={classes.movieContainer}>
               <section className={classes.visualsContainer}>
                 <img
@@ -175,7 +135,7 @@ const Movies = () => {
 
                 {/* Check to see if user logged in, if so, display user buttons */}
 
-                {localStorage.getItem('isLoggedIn') && (
+                {user.isLoggedIn && (
                   <ButtonGroup
                     variant="contained"
                     color="primary"
@@ -213,4 +173,15 @@ const Movies = () => {
   );
 };
 
-export default Movies;
+const mapStateToProps = state => {
+  return {
+    movies: state.movies,
+    genres: state.genres,
+    user: state.user,
+  };
+};
+
+export default connect(mapStateToProps, {
+  addUserEmail,
+  fetchUserMovies,
+})(Movies);

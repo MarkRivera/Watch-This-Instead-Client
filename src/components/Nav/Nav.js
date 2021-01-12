@@ -1,5 +1,4 @@
-import React, { useState, useContext } from 'react';
-import UserContext from '../../UserContext';
+import React, { useState } from 'react';
 import { useHistory } from 'react-router-dom';
 
 // Material UI
@@ -21,6 +20,10 @@ import './Nav.css';
 // Navigation
 import AppBar from '@material-ui/core/AppBar';
 import { Link as RouterLink } from 'react-router-dom';
+
+// Redux
+import { connect } from 'react-redux';
+import { logout } from '../../state/actions/actions';
 
 const drawerWidth = 400;
 
@@ -68,10 +71,9 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-const Nav = () => {
+const Nav = ({ user, logout }) => {
   const [open, setOpen] = useState(false);
   const classes = useStyles();
-  const { user, logout } = useContext(UserContext);
   const history = useHistory();
 
   // Event Handlers
@@ -146,4 +148,12 @@ const Nav = () => {
   );
 };
 
-export default Nav;
+const mapStateToProps = state => {
+  return {
+    user: state.user,
+  };
+};
+
+export default connect(mapStateToProps, {
+  logout,
+})(Nav);

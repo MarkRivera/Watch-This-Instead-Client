@@ -1,6 +1,4 @@
 import React, { useState, useEffect, useContext } from 'react';
-import UserContext from '../../UserContext';
-import axios from 'axios';
 import Avatar from '@material-ui/core/Avatar';
 import Button from '@material-ui/core/Button';
 import CssBaseline from '@material-ui/core/CssBaseline';
@@ -12,6 +10,10 @@ import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import { Redirect } from 'react-router-dom';
+
+// Redux
+import { connect } from 'react-redux';
+import { login } from '../../state/actions/actions';
 
 const useStyles = makeStyles(theme => ({
   paper: {
@@ -39,56 +41,17 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-export default function Login() {
+const Login = ({ isLoggedIn, isLoading, login }) => {
   const classes = useStyles();
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-
   const [userData, setUserData] = useState({
     email: '',
     password: '',
   });
 
-  const [query, setQuery] = useState({
-    isLoading: false,
-    isSuccess: false,
-    isError: false,
-    data: [],
-  });
-
-  const { user, login } = useContext(UserContext);
-
-  useEffect(() => {
-    user.isLoggedIn ? setIsLoggedIn(true) : setIsLoggedIn(false);
-  }, [user.isLoggedIn]);
-
   // Event Handlers
-  const handleClick = async () => {
-    setQuery({
-      ...query,
-      isLoading: true,
-    });
-
-    try {
-      const request = await axios.post(
-        'https://watch-this-instead.herokuapp.com/api/users/login',
-        userData
-      );
-
-      setQuery({
-        isLoading: false,
-        isSuccess: true,
-        isError: false,
-        data: request.data,
-      });
-      login(request.data, request.data.token);
-    } catch (error) {
-      setQuery({
-        isLoading: false,
-        isSuccess: false,
-        isError: true,
-        data: error,
-      });
-    }
+  const handleClick = async e => {
+    e.preventDefault();
+    login(userData);
   };
 
   const handleChange = e => {
@@ -146,7 +109,7 @@ export default function Login() {
             className={classes.submit}
             onClick={handleClick}
           >
-            {query.isLoading ? (
+            {isLoading ? (
               <div className={classes.circular}>
                 <CircularProgress color="inherit" size={24} />{' '}
               </div>
@@ -160,4 +123,15 @@ export default function Login() {
       </div>
     </Container>
   );
-}
+};
+
+const mapStateToProps = state => {
+  return {
+    isLoggedIn: state.user.isLoggedIn,
+    isLoading: state.user.isLoading,
+  };
+};
+
+export default connect(mapStateToProps, {
+  login,
+})(Login);

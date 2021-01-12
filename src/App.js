@@ -13,6 +13,7 @@ import './App.css';
 import Nav from './components/Nav/Nav';
 import UserProvider from './components/UserProvider/UserProvider';
 import Movies from './components/Movies/Movies';
+import Profile from './components/Profile/Profile';
 
 let theme = createMuiTheme({
   palette: {
@@ -44,6 +45,10 @@ const App = () => (
 
           <Route path="/register">
             <Register />
+          </Route>
+
+          <Route path="/profile">
+            <Profile />
           </Route>
         </Switch>
       </div>
