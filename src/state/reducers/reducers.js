@@ -12,8 +12,12 @@ import {
 const initialState = {
   user: {
     email: '',
+    id: null,
     token: null,
-    data: [],
+    genres: [],
+    favorites: [],
+    watchlist: [],
+    watched: [],
     isLoggedIn: false,
     isLoading: false,
     isSuccess: false,
@@ -49,7 +53,14 @@ const reducer = (state = initialState, { type, payload }) => {
         ...state,
         user: {
           ...state.user,
+          email: payload.user.email,
           token: payload.token,
+          id: payload.user.id,
+          genres: payload.user.genres,
+          favorites: payload.user.favorites,
+          watchlist: payload.user.watchlist,
+          watched: payload.user.watched,
+
           isLoggedIn: true,
           isLoading: false,
           isSuccess: true,
@@ -63,7 +74,12 @@ const reducer = (state = initialState, { type, payload }) => {
         user: {
           ...state.user,
           token: null,
-          data: [],
+          id: null,
+          genres: [],
+          favorites: [],
+          watchlist: [],
+          watched: [],
+
           isLoggedIn: false,
           isLoading: false,
           isSuccess: false,
@@ -77,7 +93,11 @@ const reducer = (state = initialState, { type, payload }) => {
         user: {
           ...state.user,
           token: null,
-          data: [],
+          id: null,
+          genres: [],
+          favorites: [],
+          watchlist: [],
+          watched: [],
           isLoggedIn: false,
         },
       };

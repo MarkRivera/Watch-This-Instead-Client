@@ -17,6 +17,9 @@ import BookmarkIcon from '@material-ui/icons/Bookmark';
 import { connect } from 'react-redux';
 import { addUserEmail, fetchUserMovies } from '../../state/actions/actions';
 
+// Placeholder
+import Placeholder from '../../assets/img/Movie_Poster_Placeholder.png';
+
 const useStyles = makeStyles(theme => ({
   container: {
     width: '100%',
@@ -88,13 +91,12 @@ const Movies = ({ movies, genres, user, fetchUserMovies }) => {
     fetchUserMovies(user.token);
   }, [user, fetchUserMovies]);
 
-  // useEffect(() => {
-  //   user.isLoggedIn
-  //     ? localStorage.setItem('isLoggedIn', `${user.isLoggedIn}`)
-  //     : localStorage.removeItem('isLoggedIn');
-  // }, [user.isLoggedIn]);
-
-  // Fetch Movie Posters and add them to Movie Objects in State
+  // Event Handlers:
+  const handleClick = e => {
+    e.preventDefault();
+    e.persist();
+    console.dir(e.currentTarget.dataset.button);
+  };
 
   return (
     <main className={classes.container}>
@@ -111,11 +113,7 @@ const Movies = ({ movies, genres, user, fetchUserMovies }) => {
             <section key={nanoid()} className={classes.movieContainer}>
               <section className={classes.visualsContainer}>
                 <img
-                  src={
-                    movie.posterUrl
-                      ? movie.posterUrl
-                      : 'https://via.placeholder.com/300x450.png'
-                  }
+                  src={movie.posterUrl ? movie.posterUrl : Placeholder}
                   alt={`Poster of the ${movie.title} movie`}
                   className={classes.poster}
                 />
@@ -142,14 +140,26 @@ const Movies = ({ movies, genres, user, fetchUserMovies }) => {
                     aria-label="outlined primary button group"
                     className={classes.buttonContainer}
                   >
-                    <Button className={classes.favButton}>
+                    <Button
+                      className={classes.favButton}
+                      data-button="favorite"
+                      onClick={e => handleClick(e)}
+                    >
                       <FavoriteIcon />
                     </Button>
 
-                    <Button className={classes.watchedButton}>
+                    <Button
+                      className={classes.watchedButton}
+                      data-button="watched"
+                      onClick={e => handleClick(e)}
+                    >
                       <WatchLaterIcon />
                     </Button>
-                    <Button className={classes.watchListButton}>
+                    <Button
+                      className={classes.watchListButton}
+                      data-button="watchlist"
+                      onClick={e => handleClick(e)}
+                    >
                       <BookmarkIcon />
                     </Button>
                   </ButtonGroup>

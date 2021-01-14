@@ -70,7 +70,7 @@ export const login = credentials => async dispatch => {
       `https://watch-this-instead.herokuapp.com/api/users/login`,
       credentials
     );
-    console.log(request);
+
     // On Success:
     dispatch({ type: LOGIN_SUCCESS, payload: request.data });
   } catch (error) {
